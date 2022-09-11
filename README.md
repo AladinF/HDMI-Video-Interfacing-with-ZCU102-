@@ -20,4 +20,31 @@ CRC (video_frame_crc) is used HDMI example designs to calculate CRC at frame lev
 ### Final Block Design
 ![image](https://user-images.githubusercontent.com/58849076/189553895-af7207ee-2435-4866-b954-6690848f7068.png)
 
-![image](https://user-images.githubusercontent.com/58849076/189553908-5774aad2-6f6d-4d26-b31a-d13185ab2509.png)
+### Software application using Vitis
+- Generate ouput products 
+- Run synthesis, implementation and bitstream generation
+- Export hardware
+- Launch Vitis IDE
+
+#### Test 
+![image](https://user-images.githubusercontent.com/58849076/189554341-9c95341b-5dfa-40f8-ad7a-1de6f1c671a0.png)
+
+#### ZCU102 Board configuration 
+- Force the JTAG mode through XSCT shell. Type the following commands.
+```
+>xsct connect 
+>xsct targets -set -nocase -filter {name =~ "*PSU*"}
+>xsct mwr 0xff5e0200 0x0100
+>xsct rst -system
+```
+
+### Bibliography
+_ZCU102 Evaluation Board User Guide (UG118), v1.6 June 12, 2019, Xilinx, https://www.xilinx.com/support/documents/boards_and_kits/zcu102/ug1182-zcu102-eval-bd.pdf_
+
+_Video Test Pattern Generator v7.0 LogiCORE IP Product Guide (PG103), Xilinx, https://docs.xilinx.com/v/u/7.0-English/pg103-v-tpg_
+
+_Video PHY Controller LogiCORE IP Product Guide (PG230), Xilinx, https://docs.xilinx.com/r/en-US/pg230-vid-phy-controller_ 
+
+_AMBA 4 AXI4-Stream Protocol Specification, ARM https://developer.arm.com/documentation/ihi0051/a/Introduction/About-the-AXI4-Stream-protocol_
+
+_Device Driver Programmer Guide, Xilinx , v1.4, 2007_
