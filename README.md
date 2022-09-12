@@ -64,17 +64,20 @@ Link Clock (txoutclk) used for data interface between the Video PHY layer module
 - Launch Vitis IDE ```Tools>Launch Vitis IDE```
 
 #### Test 
-The Video TPG Subsystem is in generation mode. 
-![image](https://user-images.githubusercontent.com/58849076/189558510-84469527-0443-4b9f-8271-0ecae45577ca.png)
+**The Video TPG Subsystem is in generation mode.**
 Refer to the Adress Map to get the base address for the TPG Subsystem. From this address we can calculate the address of the register *background_pattern_id*. We use XSCT shell to send commands and write values at the register's address to generate different patterns. Each pattern has an id. 
-![image](https://user-images.githubusercontent.com/58849076/189554341-9c95341b-5dfa-40f8-ad7a-1de6f1c671a0.png)
-Each pattern 
 ![image](https://user-images.githubusercontent.com/58849076/189558637-faf5799c-065d-4461-8955-12818e47c3d8.png)
+
 Example : This command will generate a color bar pattern.
 ```
 >xsct connect 
 >xsct mwr 0x80030000 0x02
 ```
+
+![image](https://user-images.githubusercontent.com/58849076/189554341-9c95341b-5dfa-40f8-ad7a-1de6f1c671a0.png)
+
+**The Video TPG Subsystem is in passthrough mode.**
+![image](https://user-images.githubusercontent.com/58849076/189559260-95de6bbe-b637-4c22-8a72-3b428643fcd8.png)
 
 #### ZCU102 Board configuration 
 - Force the JTAG mode through XSCT shell . Type the following commands.
