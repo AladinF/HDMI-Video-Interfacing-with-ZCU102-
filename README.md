@@ -4,8 +4,7 @@ HDMI Video Interfacing with ZCU102 using Xilinx IPs
 This project is based on the *ov7670\_to\_vga* project accessible here: https://github.com/ESCA-RISC-V/ov7670_to_vga.
 - A licence is required to use the Xilinx HDMI IP core. 
 - This project was developed under Vivado 2020.2 version.
-- 
-Let's create a 640x480 RGB 24bpp @ 60Hz video signal. The camera will send data coded in YUV422 format. That's 307200 pixels per frame, and since each pixel has 24 bits (8 bits for red, green and blue), at 60Hz, the HDMI link will transport 0.44Gbps of "useful" data. 
+- Files from original project *ov7670\_to\_vga* have been tranlated from SystemVerilog to Verilog for this project in order to allow adding RTL modules to the block design.
 
 ###	FSM : ov7670_capture
 ![image](https://user-images.githubusercontent.com/58849076/189544568-7a664f5e-d259-4dac-9dd1-b8256a37eca7.png)
@@ -48,7 +47,7 @@ The Video Test Pattern Generator has 2 modes : Generation mode (1) and Passthrou
 - The second mode will be used to drive the camera output to the HDMI circuit (check _HAS AXI4S SLAVE_)
 
 #### Clocking
-
+Let's create a 640x480 RGB 24bpp @ 60Hz video signal. The camera will send data coded in YUV422 format. That's 307200 pixels per frame, and since each pixel has 24 bits (8 bits for red, green and blue), at 60Hz, the HDMI link will transport 0.44Gbps of "useful" data. 
 
 ![image](https://user-images.githubusercontent.com/58849076/189557644-0d997192-c620-40fd-bc00-4ae6964c0a4e.png)
 
