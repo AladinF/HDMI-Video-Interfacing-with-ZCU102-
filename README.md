@@ -78,6 +78,7 @@ Example : This command will generate a color bar pattern.
 ![image](https://user-images.githubusercontent.com/58849076/189554341-9c95341b-5dfa-40f8-ad7a-1de6f1c671a0.png)
 
 **The Video TPG Subsystem is in passthrough mode.**
+
 ![image](https://user-images.githubusercontent.com/58849076/189559260-95de6bbe-b637-4c22-8a72-3b428643fcd8.png)
 
 #### ZCU102 Board configuration 
@@ -88,7 +89,7 @@ Example : This command will generate a color bar pattern.
 >xsct mwr 0xff5e0200 0x0100
 >xsct rst -system
 ```
-- Make sure to always check _skip revision check_ before programming the FPGA or running the application. It is also possible to add the -no-revision-check option if prgramming with the XSCD shell.
+- Make sure to always check _skip revision check_ before programming the FPGA or running the application. It is also possible to add the ```-no-revision-check``` option if programming with the XSCD shell.
  
 ### Bibliography
 _ZCU102 Evaluation Board User Guide (UG118), v1.6 June 12, 2019, Xilinx, https://www.xilinx.com/support/documents/boards_and_kits/zcu102/ug1182-zcu102-eval-bd.pdf_
