@@ -16,7 +16,6 @@ The *ov7670\_capture* file codes the FSM for data capture. In the ov7670\_to\_vg
 Cyclic Redundancy Check (CRC) is generally used to detect errors in digital data and is commonly employed in video transmission to detect errors in pixel transmission. Using CRC, data integrity can be checked at various levels namely, pixel level, horizontal line level, frame level of a video.
 Note that, CRC is not part of the HDMI core data path requirements but is necessary for validation/compliance requirement
 CRC (video_frame_crc) is used HDMI example designs to calculate CRC at frame level, on the data received by DisplayPort RX subsystem and on the data being fed to DisplayPort TX subsystem (in passthrough system). Each color component’s CRC value is calculated separately once per every frame and can be compared with the transmitted video frame’s CRC value to check the data integrity.
-![image](https://user-images.githubusercontent.com/58849076/189553525-bc0ff46f-c40c-43c7-ba3e-434790726754.png)
 #### 	HDMI Transmitter Subsystem
 
 #### Video PHY Controller
@@ -28,11 +27,13 @@ Link Clock (txoutclk) used for data interface between the Video PHY layer module
 Video Clock used for video interface For dual pixel video clock = pixel clock/2
 
 #### Video TPG Subsystem
-Video Test Pattern Generator. It has 2 modes : Generation mode (1) and Passthrough mode (2)
+The Video Test Pattern Generator has 2 modes : Generation mode (1) and Passthrough mode (2)
 ![image](https://user-images.githubusercontent.com/58849076/189556212-399f6b6c-5c09-486a-8e97-10563b18b26c.png)
-- Set the maximum to 680 and to 480.
-- The first mode will be used to test the platform (by default). Make sure to check all the patterns when customizing the IP.
-- The second mode will be used to drive the camera output to the HDMI circuit (check add AXi slave)
+- Double click on the TPG block to re-customize the IP
+- Set the maximum number of columns to 680 and maximum number of raws to 480.
+- Make sure samples per clock is equal to 2 and maximum data width is equal to 8.
+- The first mode will be used to test the platform (by default). Make sure to check all the patterns under _Background Patterns_.
+- The second mode will be used to drive the camera output to the HDMI circuit (check _HAS AXI4S SLAVE_)
 
 #### Clocking
 
@@ -44,7 +45,10 @@ The pixel clock represents the total number of pixels that need to be sent every
 - Video clock = (Pixel clock)/PPC=25.2/2 = 12.6 MHz
 Video Clock used for video interface For dual pixel video clock = pixel clock/2
 - Data clock = Pixel clock x BPC/8=25.2 x 8/8 = 25.2 MHz
+This is the actual data rate clock. This clock is not used in the system. It is only listed to illustrate the clock relations. = TMDS clock (for data rates < 3.4 Gb/s) 
 - Link clock = (Data clock)/PPC=25.2/2 = 12.6 MHz
+Link Clock (txoutclk) used for data interface between the Video PHY layer module and subsystem -  For dual pixel video: Clock=data clock/2 
+
 
 ### Final Block Design
 ![image](https://user-images.githubusercontent.com/58849076/189553895-af7207ee-2435-4866-b954-6690848f7068.png)
@@ -52,10 +56,10 @@ Video Clock used for video interface For dual pixel video clock = pixel clock/2
 ### 
 
 ### Software application using Vitis
-- Generate ouput products 
+- Generate ouput products ```Flow Navigator>IP INTEGRATOR>Generate Block Design>Generate```
 - Run synthesis, implementation and bitstream generation
-- Export hardware
-- Launch Vitis IDE
+- Export hardware ```File>Export>Export Hardware...```
+- Launch Vitis IDE ```Tools>Launch Vitis IDE```
 
 #### Test 
 ![image](https://user-images.githubusercontent.com/58849076/189554341-9c95341b-5dfa-40f8-ad7a-1de6f1c671a0.png)
