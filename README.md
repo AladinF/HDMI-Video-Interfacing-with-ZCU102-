@@ -1,11 +1,17 @@
 # HDMI-Video-Interfacing-with-ZCU102
 HDMI Video Interfacing with ZCU102 using Xilinx IPs
 
-This project is based on the ov7670_to_vga project accessible here: https://github.com/ESCA-RISC-V/ov7670_to_vga.
+This project is based on the *ov7670\_to\_vga* project accessible here: https://github.com/ESCA-RISC-V/ov7670_to_vga.
+A licence is required to use the Xilinx HDMI IP core. 
+
+Let's create a 640x480 RGB 24bpp @ 60Hz video signal. The camera will send data coded in YUV422 format. That's 307200 pixels per frame, and since each pixel has 24 bits (8 bits for red, green and blue), at 60Hz, the HDMI link will transport 0.44Gbps of "useful" data. 
+
 ###	FSM : ov7670_capture
 ![image](https://user-images.githubusercontent.com/58849076/189544568-7a664f5e-d259-4dac-9dd1-b8256a37eca7.png)
+The *ov7670\_capture* file codes the FSM for data capture. In the ov7670\_to\_vga project, we only capture the brightness byte that is written to memory. The result is a black and white image. For this project, the FSM code is modified so that we capture both the chrominance and brightness bytes for each pixel. The result will be a colored image.
 
-### 
+### Xilinx Example Design : HDMI Tx Only
+
 #### Video Frame CRC
 Cyclic Redundancy Check (CRC) is generally used to detect errors in digital data and is commonly employed in video transmission to detect errors in pixel transmission. Using CRC, data integrity can be checked at various levels namely, pixel level, horizontal line level, frame level of a video.
 Note that, CRC is not part of the HDMI core data path requirements but is necessary for validation/compliance requirement
@@ -14,11 +20,36 @@ CRC (video_frame_crc) is used HDMI example designs to calculate CRC at frame lev
 #### 	HDMI Transmitter Subsystem
 
 #### Video PHY Controller
+The subsystem converts the video stream and audio stream into an HDMI stream, based on the selected video format set by the processor core through the CPU interface. The subsystem then transmits the HDMI stream to the PHY Layer (Video PHY Controller/HDMI GT Subsystem) which converts the data into electronic signals which are then sent to an HDMI sink through an HDMI cable. 
+
+TMDS Source synchronous clock to HDMI interface (This is the actual clock on the HDMI cable) = 1/10 data rate (for data rates < 3.4 Gb/s)
+Link Clock (txoutclk) used for data interface between the Video PHY layer module and subsystem -  For dual pixel video: Clock=data clock/2 
+
+Video Clock used for video interface For dual pixel video clock = pixel clock/2
+
 #### Video TPG Subsystem
-2 modes : Generation mode (1) and Passthrough mode (2)
+Video Test Pattern Generator. It has 2 modes : Generation mode (1) and Passthrough mode (2)
+![image](https://user-images.githubusercontent.com/58849076/189556212-399f6b6c-5c09-486a-8e97-10563b18b26c.png)
+- Set the maximum to 680 and to 480.
+- The first mode will be used to test the platform (by default). Make sure to check all the patterns when customizing the IP.
+- The second mode will be used to drive the camera output to the HDMI circuit (check add AXi slave)
+
+#### Clocking
+
+
+![image](https://user-images.githubusercontent.com/58849076/189557644-0d997192-c620-40fd-bc00-4ae6964c0a4e.png)
+
+- Pixel clock = Htotal × Vtotal × Frame Rate = 800 x 525 x 60 =25,200,000 = 25.2 MHz 
+The pixel clock represents the total number of pixels that need to be sent every second. This clock is not used in the system. It is only listed to illustrate the clock relations.
+- Video clock = (Pixel clock)/PPC=25.2/2 = 12.6 MHz
+Video Clock used for video interface For dual pixel video clock = pixel clock/2
+- Data clock = Pixel clock x BPC/8=25.2 x 8/8 = 25.2 MHz
+- Link clock = (Data clock)/PPC=25.2/2 = 12.6 MHz
 
 ### Final Block Design
 ![image](https://user-images.githubusercontent.com/58849076/189553895-af7207ee-2435-4866-b954-6690848f7068.png)
+
+### 
 
 ### Software application using Vitis
 - Generate ouput products 
@@ -30,14 +61,15 @@ CRC (video_frame_crc) is used HDMI example designs to calculate CRC at frame lev
 ![image](https://user-images.githubusercontent.com/58849076/189554341-9c95341b-5dfa-40f8-ad7a-1de6f1c671a0.png)
 
 #### ZCU102 Board configuration 
-- Force the JTAG mode through XSCT shell. Type the following commands.
+- Force the JTAG mode through XSCT shell . Type the following commands.
 ```
 >xsct connect 
 >xsct targets -set -nocase -filter {name =~ "*PSU*"}
 >xsct mwr 0xff5e0200 0x0100
 >xsct rst -system
 ```
-
+- Make sure to always check _skip revision check_ before programming the FPGA or running the application. It is also possible to add the -no-revision-check option if prgramming with the XSCD shell.
+ 
 ### Bibliography
 _ZCU102 Evaluation Board User Guide (UG118), v1.6 June 12, 2019, Xilinx, https://www.xilinx.com/support/documents/boards_and_kits/zcu102/ug1182-zcu102-eval-bd.pdf_
 
