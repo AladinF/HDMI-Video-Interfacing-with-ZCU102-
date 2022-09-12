@@ -2,16 +2,18 @@
 HDMI Video Interfacing with ZCU102 using Xilinx IPs
 
 This project is based on the *ov7670\_to\_vga* project accessible here: https://github.com/ESCA-RISC-V/ov7670_to_vga.
-A licence is required to use the Xilinx HDMI IP core. 
-
+- A licence is required to use the Xilinx HDMI IP core. 
+- This project was developed under Vivado 2020.2 version.
+- 
 Let's create a 640x480 RGB 24bpp @ 60Hz video signal. The camera will send data coded in YUV422 format. That's 307200 pixels per frame, and since each pixel has 24 bits (8 bits for red, green and blue), at 60Hz, the HDMI link will transport 0.44Gbps of "useful" data. 
 
 ###	FSM : ov7670_capture
 ![image](https://user-images.githubusercontent.com/58849076/189544568-7a664f5e-d259-4dac-9dd1-b8256a37eca7.png)
-The *ov7670\_capture* file codes the FSM for data capture. In the ov7670\_to\_vga project, we only capture the brightness byte that is written to memory. The result is a black and white image. For this project, the FSM code is modified so that we capture both the chrominance and brightness bytes for each pixel. The result will be a colored image.
+
+The *ov7670\_capture* file codes the FSM for data capture. In the *ov7670\_to\_vga* project, we only capture the brightness byte that is written to memory. The result is a black and white image. For this project, the FSM code is modified so that we capture both the chrominance and brightness bytes for each pixel. The result will be a colored image.
 
 ### Xilinx Example Design : HDMI Tx Only
-
+Open 
 #### Video Frame CRC
 Cyclic Redundancy Check (CRC) is generally used to detect errors in digital data and is commonly employed in video transmission to detect errors in pixel transmission. Using CRC, data integrity can be checked at various levels namely, pixel level, horizontal line level, frame level of a video.
 Note that, CRC is not part of the HDMI core data path requirements but is necessary for validation/compliance requirement
@@ -62,7 +64,17 @@ Link Clock (txoutclk) used for data interface between the Video PHY layer module
 - Launch Vitis IDE ```Tools>Launch Vitis IDE```
 
 #### Test 
+The Video TPG Subsystem is in generation mode. 
+![image](https://user-images.githubusercontent.com/58849076/189558510-84469527-0443-4b9f-8271-0ecae45577ca.png)
+Refer to the Adress Map to get the base address for the TPG Subsystem. From this address we can calculate the address of the register *background_pattern_id*. We use XSCT shell to send commands and write values at the register's address to generate different patterns. Each pattern has an id. 
 ![image](https://user-images.githubusercontent.com/58849076/189554341-9c95341b-5dfa-40f8-ad7a-1de6f1c671a0.png)
+Each pattern 
+![image](https://user-images.githubusercontent.com/58849076/189558637-faf5799c-065d-4461-8955-12818e47c3d8.png)
+Example : This command will generate a color bar pattern.
+```
+>xsct connect 
+>xsct mwr 0x80030000 0x02
+```
 
 #### ZCU102 Board configuration 
 - Force the JTAG mode through XSCT shell . Type the following commands.
