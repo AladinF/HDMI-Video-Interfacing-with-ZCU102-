@@ -66,6 +66,7 @@ Link Clock (txoutclk) used for data interface between the Video PHY layer module
 #### Test 
 **The Video TPG Subsystem is in generation mode.**
 Refer to the Adress Map to get the base address for the TPG Subsystem. From this address we can calculate the address of the register *background_pattern_id*. We use XSCT shell to send commands and write values at the register's address to generate different patterns. Each pattern has an id. 
+
 ![image](https://user-images.githubusercontent.com/58849076/189558637-faf5799c-065d-4461-8955-12818e47c3d8.png)
 
 Example : This command will generate a color bar pattern.
