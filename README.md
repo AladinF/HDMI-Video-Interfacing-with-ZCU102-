@@ -15,12 +15,8 @@ The *ov7670\_capture* file codes the FSM for data capture. In the *ov7670\_to\_v
 - When creating a new project on Vivado, select the target board ZCU102.
 - Open IP catalog ```Flow Navigator>PROJECT MANAGER>IP Catalog``` and search _HDMI 1.4/2.0 Transmitter Subsystem_, then double click on it.
 - Customize the IP then click OK:
-   - Toplevel :
-      -Video Interface -> Axi4-Stream
-      -Max bits per component -> 8
-      -Number of pixels per clock on Video Interface -> 2
-   - Example Design :
-      -Design Topology -> Tx Only
+   - Toplevel : Video Interface -> Axi4-Stream / Max bits per component -> 8 / Number of pixels per clock on Video Interface -> 2
+   - Example Design : Design Topology -> Tx Only
 - Right click on ```Sources->v_hdmi_tx_ss_0```then click on _Open IP Example Design..._
 
 #### Video Frame CRC
