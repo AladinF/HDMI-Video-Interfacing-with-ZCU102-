@@ -33,8 +33,8 @@ The *ov7670\_capture* file codes the FSM for data capture. In the *ov7670\_to\_v
    - Port B Options : Port B Width -> / Port B Depth -> / Enable Port Type -> Always Enabled / Uncheck Primitives Output Register
 - Right click on the block design then click on *Add IP* to add Video In to AXI4-Stream
    - Customize the IP by setting Pixels per Clock to 2
-
-- Generate output products, the wrapper file (Top file) will be updated automatically by Vivado.
+- Right click on the pins we want to make extenal and click on *Make External* (or Ctrl + T). Customize the names so that they match the ones given in the constraints file. The external pins are : ....
+- Generate output products : ```Flow Navigator>IP INTEGRATOR>Generate Block Design```. The wrapper file (Top file) will be updated automatically by Vivado.
 
 #### Video Frame CRC
 Cyclic Redundancy Check (CRC) is generally used to detect errors in digital data and is commonly employed in video transmission to detect errors in pixel transmission. Using CRC, data integrity can be checked at various levels namely, pixel level, horizontal line level, frame level of a video.
