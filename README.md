@@ -46,17 +46,17 @@ The Video Test Pattern Generator has 2 modes : Generation mode (1) and Passthrou
 - Double click on the TPG block to re-customize the IP
 - Set the maximum number of columns to 680 and maximum number of rows to 480.
 - Make sure samples per clock is equal to 2 and maximum data width is equal to 8.
-- The first mode will be used to test the platform (by default). Make sure to check all the patterns under _Background Patterns_.
-- The second mode will be used to drive the camera output to the HDMI circuit (check _HAS AXI4S SLAVE_)
+- The first mode will be used to test the platform (by default). Make sure to check all the patterns under _Background Patterns_. Uncheck _HAS AXI4S SLAVE_
+- The second mode will be used to drive the camera output to the HDMI circuit. Check _HAS AXI4S SLAVE_.
 
 #### Customizing the Block Design 
 - Import the Verilog sources and the constraints file.
-- Right click on the block design then click on *Add Module* to add one by one the Verilog RTL modules.
+- Right click on the block design then click on *Add Module* to add one by one the Verilog RTL modules (Add all modules except test_image.v; this module generates a pattern image that can be used for tests and can be directly connected to the Video TPG IP in passthrough mode independently from the camera modules)
 - Right click on the block design then click on *Add IP* to add two Block Memory Generator (0) and (1)
 - Customize the Block Memory Generator (0) - blk_mem_gen_0
    - Basic : Mode -> Stand Alone / Memory Type -> Simple Dual Port RAM
-   - Port A Options : Port A Width -> 8 / Port A Depth -> 614400 / Enable Port Type -> Always Enabled
-   - Port B Options : Port B Width -> 8 / Port B Depth -> 614400 / Enable Port Type -> Always Enabled / Uncheck Primitives Output Register
+   - Port A Options : Port A Width -> 8 / Port A Depth -> 614,400 / Enable Port Type -> Always Enabled
+   - Port B Options : Port B Width -> 8 / Port B Depth -> 614,400 / Enable Port Type -> Always Enabled / Uncheck Primitives Output Register
 - Customize the Block Memory Generator (1) - blk_mem_gen_1
    - Basic : Mode -> Stand Alone / Memory Type -> Simple Dual Port RAM
    - Port A Options : Port A Width -> 48 / Port A Depth -> / Enable Port Type -> Always Enabled
@@ -108,21 +108,24 @@ The Video Test Pattern Generator has 2 modes : Generation mode (1) and Passthrou
    - Customize the IP : Const Width -> 1 / Const Val -> 1
    - Connect the dout pin to *clk_en* of camera_configure_0 
    - Connect the dout pin to *vid_io_in_ce*, *aclken* and *axis_enable* of Video In to AXI4-Stream
-- Generate output products : ```Flow Navigator>IP INTEGRATOR>Generate Block Design```. The wrapper file (Top file) will be updated automatically by Vivado.
+ 
+- The Video TPG Subsystem is in generation mode : nothing else to do, the TPG is properly configured.
+- The Video TPG Subsystem is in passthrough mode : connect the ouput pin *video_out* of v_vid_in_axi4s_0 to *s_axis_video* of v_tpg (you have to expand v_tpg_ss_0).
+- Generate output products : ```Flow Navigator>IP INTEGRATOR>Generate Block Design```. (Do this step everytime there is a modification to the Block Design). The wrapper file (Top file) will be updated automatically by Vivado. If not, right click on the Block design file in Sources and click on *Create HDL Wrapper*. Check *Let Vivado manage wrapper and auto-update* then OK.
 
 #### Clocking
 Let's create a 640x480 RGB 24bpp @ 60Hz video signal. The camera will send data coded in YUV422 format. That's 307200 pixels per frame, each pixel will be converted from YUV422 to RGB by the core module. Each pixel now has 24 bits (8 bits for red, green and blue), at 60Hz, the HDMI link will transport 0.44Gbps of useful data. 
+- Color Depth : 8 BPC (Max Bits Per Component) 
+- Color Space : RGB 
+- 2 PPC (Pixel per Clock)
 
 ![image](https://user-images.githubusercontent.com/58849076/189557644-0d997192-c620-40fd-bc00-4ae6964c0a4e.png)
 
 - Pixel clock = Htotal × Vtotal × Frame Rate = 800 x 525 x 60 =25,200,000 = 25.2 MHz 
-The pixel clock represents the total number of pixels that need to be sent every second. This clock is not used in the system. It is only listed to illustrate the clock relations.
-- Video clock = (Pixel clock)/PPC=25.2/2 = 12.6 MHz
-Video Clock used for video interface For dual pixel video clock = pixel clock/2
-- Data clock = Pixel clock x BPC/8=25.2 x 8/8 = 25.2 MHz
-This is the actual data rate clock. This clock is not used in the system. It is only listed to illustrate the clock relations. = TMDS clock (for data rates < 3.4 Gb/s) 
-- Link clock = (Data clock)/PPC=25.2/2 = 12.6 MHz
-Link Clock (txoutclk) used for data interface between the Video PHY layer module and subsystem -  For dual pixel video: Clock=data clock/2 
+The pixel clock represents the total number of pixels that need to be sent every second. This clock can be generated and connected to clk24 (hdmi_0) if it reads from memory and sends to Video in Axione pixel at a time.
+- Video clock = (Pixel clock)/PPC=25.2/2 = 12.6 MHz. The Video Clock is used for video interface. For dual pixel video clock, it is equal to pixel clock/2. This clock will be sent through the clk_out2 pin of zynq_us_ss_0. Expand the zynq_us_ss_0 hierarchy, double click on the Zynq UltraScale+ MPSoC to customize the IP. Go to Clock Configuration>Output Clocks>Low Power Domain Clocks>PL Fabric Clocks. Set the frequency of *PL1* to 12.6 MHz then click OK.
+- Data clock = Pixel clock x BPC/8=25.2 x 8/8 = 25.2 MHz. This is the actual data rate clock. This clock is not used in the system. It is equal to TMDS clock for data rates < 3.4 Gb/s 
+- Link clock = (Data clock)/PPC=25.2/2 = 12.6 MHz. Link Clock (txoutclk) used for data interface between the Video PHY layer module and subsystem. For dual pixel video, it is equal to Link Clock=data clock/2 
 
 
 ### Final Block Design
@@ -197,11 +200,11 @@ Examples :
 - Run to program the FPGA
 - It is possible to directly configure the TPG registers. Refer to the table above from Video TPG Subsystem Product Guide : 
    - background_pattern_id : set to 0 to Pass the video input straight through the video output ``` >xsct% mwr 0x80030020 0x0 ```
-   - enable_input : set to 1 to indicate that we're using the video stream entering slave AXI4-Stream video interface. ``` >xsct% mwr 0x80030098 0x1 ``` (Problem to fix : when writing this register, the HDMI cable disconnects from the monitor, there is no more output)
    - pass_thru_start_x : ``` >xsct% mwr 0x800300A0 0x1 ```
    - pass_thru_start_y : ``` >xsct% mwr 0x800300A8 0x1 ```
    - pass_thru_end_x : ``` >xsct% mwr 0x800300B0 640 ```
    - pass_thru_end_y : ``` >xsct% mwr 0x800300B8 480 ```
+   - enable_input : set to 1 to indicate that we're using the video stream entering slave AXI4-Stream video interface. ``` >xsct% mwr 0x80030098 0x1 ``` (Problem to fix : when writing this register, the HDMI cable disconnects from the monitor, there is no more output. Solutions : add an Integrated Logic Analyzer (ILA) to monitor the signals coming in and out of the Video TPG IP in Passthrough mode / Further analyse the application code in the xhdmi_example.c file)
 
 #### ZCU102 Board configuration 
 - Before programming the ZCU102 board, force the JTAG mode through XSCT shell . Type the following commands.
