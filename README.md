@@ -177,11 +177,11 @@ Examples :
 - This command will generate a color bar pattern.
 ```
 >xsct% connect 
->xsct% mwr 0x80030000 0x09
+>xsct% mwr 0x80030020 0x09
 ```
 - This command will generate a solid red output.
 ```
->xsct% mwr 0x80030000 0x04
+>xsct% mwr 0x80030020 0x04
 ```
 
 ![image](https://user-images.githubusercontent.com/58849076/189554341-9c95341b-5dfa-40f8-ad7a-1de6f1c671a0.png)
@@ -190,10 +190,18 @@ Examples :
 
 ![image](https://user-images.githubusercontent.com/58849076/189559260-95de6bbe-b637-4c22-8a72-3b428643fcd8.png)
 
-- Open the hdmi_example.c file on Vitis.
+- Open the xhdmi_example.c file on Vitis.
 - Set the variable _IsPassthrough_ to TRUE in the main() function.
 - Adapt the rest of the C code for the passthrough mode.
 - re-Build the application 
+- Run to program the FPGA
+- It is possible to directly configure the TPG registers. Refer to the table above from Video TPG Subsystem Product Guide : 
+   - background_pattern_id : set to 0 to Pass the video input straight through the video output ``` >xsct% mwr 0x80030020 0x0 ```
+   - enable_input : set to 1 to indicate that we're using the video stream entering slave AXI4-Stream video interface. ``` >xsct% mwr 0x80030098 0x1 ``` (Problem to fix : when writing this register, the HDMI cable disconnects from the monitor, there is no more output)
+   - pass_thru_start_x : ``` >xsct% mwr 0x800300A0 0x1 ```
+   - pass_thru_start_y : ``` >xsct% mwr 0x800300A8 0x1 ```
+   - pass_thru_end_x : ``` >xsct% mwr 0x800300B0 640 ```
+   - pass_thru_end_y : ``` >xsct% mwr 0x800300B8 480 ```
 
 #### ZCU102 Board configuration 
 - Before programming the ZCU102 board, force the JTAG mode through XSCT shell . Type the following commands.
