@@ -4,7 +4,8 @@ HDMI Video Interfacing with ZCU102 using Xilinx IPs
 This project is based on the *ov7670\_to\_vga* project accessible here: https://github.com/ESCA-RISC-V/ov7670_to_vga.
 - A licence is required to use the Xilinx HDMI IP core. 
 - This project was developed under Vivado 2020.2 version.
-- Files from original project *ov7670\_to\_vga* have been tranlated from SystemVerilog to Verilog for this project in order to allow adding RTL modules to the block design.
+- Files from original project *ov7670\_to\_vga* have been translated from SystemVerilog to Verilog for this project in order to allow adding RTL modules to the block design (Only VHDL and Verilog modules can be added as RTL modules to a block design).
+- Some ports from the original project *ov7670\_to\_vga* are not used in this new project ()
 
 ###	FSM : ov7670_capture
 ![image](https://user-images.githubusercontent.com/58849076/189544568-7a664f5e-d259-4dac-9dd1-b8256a37eca7.png)
@@ -16,34 +17,34 @@ The *ov7670\_capture* file codes the FSM for data capture. In the *ov7670\_to\_v
 - Open IP catalog ```Flow Navigator>PROJECT MANAGER>IP Catalog``` and search _HDMI 1.4/2.0 Transmitter Subsystem_, then double click on it.
 - Customize the IP then click OK:
    - Toplevel : Video Interface -> Axi4-Stream / Max bits per component -> 8 / Number of pixels per clock on Video Interface -> 2
-   - Example Design : Design Topology -> Tx Only
+   - Example Design : Design Topology -> Tx Only (further details on every IP of the example design can be found below)
 - Right click on ```Sources->v_hdmi_tx_ss_0```then click on _Open IP Example Design..._
-
+- The new example design project will be created at the specified directory.
+- Import the Verilog sources
+- Right click on the block design then click on *Add Module* to add one by one the Verilog RTL modules.
+- 
 #### Video Frame CRC
 Cyclic Redundancy Check (CRC) is generally used to detect errors in digital data and is commonly employed in video transmission to detect errors in pixel transmission. Using CRC, data integrity can be checked at various levels namely, pixel level, horizontal line level, frame level of a video.
-Note that, CRC is not part of the HDMI core data path requirements but is necessary for validation/compliance requirement
-CRC (video_frame_crc) is used HDMI example designs to calculate CRC at frame level, on the data received by DisplayPort RX subsystem and on the data being fed to DisplayPort TX subsystem (in passthrough system). Each color component’s CRC value is calculated separately once per every frame and can be compared with the transmitted video frame’s CRC value to check the data integrity.
+The Video Frame CRC IP is not part of the HDMI core data path requirements but is necessary for validation/compliance requirement
+
 #### 	HDMI Transmitter Subsystem
 
 #### Video PHY Controller
-The subsystem converts the video stream and audio stream into an HDMI stream, based on the selected video format set by the processor core through the CPU interface. The subsystem then transmits the HDMI stream to the PHY Layer (Video PHY Controller/HDMI GT Subsystem) which converts the data into electronic signals which are then sent to an HDMI sink through an HDMI cable. 
-
-TMDS Source synchronous clock to HDMI interface (This is the actual clock on the HDMI cable) = 1/10 data rate (for data rates < 3.4 Gb/s)
-Link Clock (txoutclk) used for data interface between the Video PHY layer module and subsystem -  For dual pixel video: Clock=data clock/2 
-
-Video Clock used for video interface For dual pixel video clock = pixel clock/2
+The HDMI stream (video stream + audio stream) is transmitted to the Video PHY Controller which converts the data into electronic signals (TMDs) which are then sent to an HDMI sink through an HDMI cable. 
 
 #### Video TPG Subsystem
-The Video Test Pattern Generator has 2 modes : Generation mode (1) and Passthrough mode (2)
+The Video Test Pattern Generator has 2 modes : Generation mode (1) and Passthrough mode (2).
+
 ![image](https://user-images.githubusercontent.com/58849076/189556212-399f6b6c-5c09-486a-8e97-10563b18b26c.png)
+
 - Double click on the TPG block to re-customize the IP
-- Set the maximum number of columns to 680 and maximum number of raws to 480.
+- Set the maximum number of columns to 680 and maximum number of rows to 480.
 - Make sure samples per clock is equal to 2 and maximum data width is equal to 8.
 - The first mode will be used to test the platform (by default). Make sure to check all the patterns under _Background Patterns_.
 - The second mode will be used to drive the camera output to the HDMI circuit (check _HAS AXI4S SLAVE_)
 
 #### Clocking
-Let's create a 640x480 RGB 24bpp @ 60Hz video signal. The camera will send data coded in YUV422 format. That's 307200 pixels per frame, and since each pixel has 24 bits (8 bits for red, green and blue), at 60Hz, the HDMI link will transport 0.44Gbps of "useful" data. 
+Let's create a 640x480 RGB 24bpp @ 60Hz video signal. The camera will send data coded in YUV422 format. That's 307200 pixels per frame, each pixel will be converted from YUV422 to RGB by the core module. Each pixel now has 24 bits (8 bits for red, green and blue), at 60Hz, the HDMI link will transport 0.44Gbps of useful data. 
 
 ![image](https://user-images.githubusercontent.com/58849076/189557644-0d997192-c620-40fd-bc00-4ae6964c0a4e.png)
 
@@ -76,8 +77,8 @@ Refer to the Adress Map to get the base address for the TPG Subsystem. From this
 
 Example : This command will generate a color bar pattern.
 ```
->xsct connect 
->xsct mwr 0x80030000 0x02
+>xsct% connect 
+>xsct% mwr 0x80030000 0x02
 ```
 
 ![image](https://user-images.githubusercontent.com/58849076/189554341-9c95341b-5dfa-40f8-ad7a-1de6f1c671a0.png)
@@ -89,10 +90,10 @@ Example : This command will generate a color bar pattern.
 #### ZCU102 Board configuration 
 - Force the JTAG mode through XSCT shell . Type the following commands.
 ```
->xsct connect 
->xsct targets -set -nocase -filter {name =~ "*PSU*"}
->xsct mwr 0xff5e0200 0x0100
->xsct rst -system
+>xsct% connect 
+>xsct% targets -set -nocase -filter {name =~ "*PSU*"}
+>xsct% mwr 0xff5e0200 0x0100
+>xsct% rst -system
 ```
 - Make sure to always check _skip revision check_ before programming the FPGA or running the application. It is also possible to add the ```-no-revision-check``` option if programming with the XSCD shell.
  
@@ -102,6 +103,8 @@ _ZCU102 Evaluation Board User Guide (UG118), v1.6 June 12, 2019, Xilinx, https:/
 _Video Test Pattern Generator v7.0 LogiCORE IP Product Guide (PG103), Xilinx, https://docs.xilinx.com/v/u/7.0-English/pg103-v-tpg_
 
 _Video PHY Controller LogiCORE IP Product Guide (PG230), Xilinx, https://docs.xilinx.com/r/en-US/pg230-vid-phy-controller_ 
+
+_HDMI 1.4/2.0 Transmitter Subsystem v3.1 Product Guide (PG230), Xilinx, https://www.mouser.cn/datasheet/2/903/pg235_v_hdmi_tx_ss-1596308.pdf_
 
 _AMBA 4 AXI4-Stream Protocol Specification, ARM https://developer.arm.com/documentation/ihi0051/a/Introduction/About-the-AXI4-Stream-protocol_
 
