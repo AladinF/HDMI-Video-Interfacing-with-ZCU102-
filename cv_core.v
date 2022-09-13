@@ -35,7 +35,7 @@ module core #(
 			input                         rst_n,
 			
 			output       [19:0]	          addr_mem0,
-			output       [18:0]	          addr_mem1,
+		    	output       [17:0]	          addr_mem1,
 			output  reg [47:0]	          dout, //RGB - 3 bytes
 			output  reg                  we,
 			
@@ -46,7 +46,7 @@ module core #(
 	reg [18:0]	counter;
     reg [10:0] hor, ver;
     reg [19:0]	address_mem0;
-	reg[18:0] address_mem1;
+	reg[17:0] address_mem1;
 	reg [31:0] red0_c, green0_c, blue0_c,red1_c, green1_c, blue1_c; //before clipping
 	reg [7:0] red0, green0, blue0,red1, green1, blue1;
 	reg [7:0] u0,y0,v0,y1, c, d, e;
