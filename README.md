@@ -98,8 +98,12 @@ Link Clock (txoutclk) used for data interface between the Video PHY layer module
 - Run synthesis, implementation and bitstream generation
 - Export hardware ```File>Export>Export Hardware...``` (Make sure to include bitstream)
 - Launch Vitis IDE ```Tools>Launch Vitis IDE```
-- Create a new platform project ```File>New>Platform Project``` and use the exported hardware file as an XSA File for the platform
-- 
+- Create a new platform project ```File>New>Platform Project``` and use the exported hardware file as an XSA File for the platform ```Create a new platform from hardware (XSA)>Hardware Specification>XSA File>Browse```. Set the OS and processor : ```Software Specification>Operating system>standalone``` and ```Software Specification>Processor>psu_cortexa53_0```. Make sure *Generate boot components* is checked and *target processor to create FSBL* is set to psu_cortexa53_0. Click Finish to generate the platform.
+- At the platform.spr page, select Board Support Package under the *standalone on psu_cortexa53_0*
+- In the peripheral drivers list, click on *Import Examples* for the *v_hdmi_tx_ss*. A window opens, select *TxOnly_A53* to import the application. Right click on the application in the *Explorer* window and click on Build to build the platform and the application project.
+- Refer to the ZCU102 Board configuration paragraph below before programming the FPGA. Right click on the application in the *Explorer* window then click on ```Run as>Run configurations```. Double click on *System Debug System* then *Target Setup*. Check *Program FPGA* and *Skip Revision Check*
+- Click on Run to run the application.
+- PS : if an error window pops up with an error message related to memory when runnning the application, try to uncheck *Use FSBL flow for initialization* in *Target Setup* in order to use *psu_init.tcl* as an Initialization File.
 
 #### Test 
 **The Video TPG Subsystem is in generation mode**
@@ -129,8 +133,9 @@ Examples :
 - Set the variable _IsPassthrough_ to TRUE in the main() function.
 - Adapt the rest of the C code for the passthrough mode.
 - re-Build the application 
+
 #### ZCU102 Board configuration 
-- Force the JTAG mode through XSCT shell . Type the following commands.
+- Before programming the ZCU102 board, force the JTAG mode through XSCT shell . Type the following commands.
 ```
 >xsct% connect 
 >xsct% targets -set -nocase -filter {name =~ "*PSU*"}
