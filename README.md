@@ -20,55 +20,6 @@ The *ov7670\_capture* file codes the FSM for data capture. In the *ov7670\_to\_v
    - Example Design : Design Topology -> Tx Only (further details on every IP of the example design can be found below)
 - Right click on ```Sources->v_hdmi_tx_ss_0``` then click on _Open IP Example Design..._
 - The new example design project will be created at the specified directory.
-- Import the Verilog sources and the constraints file.
-- Right click on the block design then click on *Add Module* to add one by one the Verilog RTL modules.
-- Right click on the block design then click on *Add IP* to add two Block Memory Generator (0) and (1)
-- Customize the Block Memory Generator (0) - blk_mem_gen_0
-   - Basic : Mode -> Stand Alone / Memory Type -> Simple Dual Port RAM
-   - Port A Options : Port A Width -> 8 / Port A Depth -> 614400 / Enable Port Type -> Always Enabled
-   - Port B Options : Port B Width -> 8 / Port B Depth -> 614400 / Enable Port Type -> Always Enabled / Uncheck Primitives Output Register
-- Customize the Block Memory Generator (1) - blk_mem_gen_1
-   - Basic : Mode -> Stand Alone / Memory Type -> Simple Dual Port RAM
-   - Port A Options : Port A Width -> 48 / Port A Depth -> / Enable Port Type -> Always Enabled
-   - Port B Options : Port B Width -> 48 / Port B Depth -> / Enable Port Type -> Always Enabled / Uncheck Primitives Output Register
-- Right click on the block design then click on *Add IP* to add Video In to AXI4-Stream
-   - Customize the IP by setting Pixels per Clock to 2
-- Right click on the pins we want to make extenal and click on *Make External* (or Ctrl + T). Customize the names so that they match the ones given in the constraints file. The connexions to/from external pins are : 
-   - ov7670_capture_0 : *OV7670_PCLK* -> pclk / *V7670_VSYNC* -> vsync / *OV7670_HREF* -> href / *SW7* -> sw / *OV7670_D* -> din
-   - camera_configure_0 : pwdn -> *OV7670_PWDN* / reset -> *OV7670_RESET* / xclk -> *OV7670_XCLK* / sioc -> *OV7670_SIOC* / siod <-> *OV7670_SIOD*
-- Right click on the block design then click on *Add IP* to add a Utility Vector Logic. Customize it : C_SIZE -> 1 / C_OPERATION -> not. The input of the IP should be connected to the external port _PAD_RESET_ and the output of the IP the *rst_n* pins of the RTL modules 
-- Right click on the block design then click on *Add IP* to add a Clocking Wizard. Customize the IP : 
-   - Board : CLK_IN1 -> user si570 sysclk (erternal port)
-   - Output Clocks : clk_out1 : Port Name -> clk_24wiz / Output Freq -> 24 MHz
-   - Output Clocks : clk_out2 : Port Name -> clk_24wiz_180shift / Output Freq -> 24 MHz / 
-   - Output Clocks : clk_out3 : Port Name -> clk_48wiz / Output Freq -> 48 MHz
-- Connect the clocks : ()  
-   - camera_configure_0 : clk_48wiz -> sclk / clk_24wiz -> clk
-   - blk_mem_gen_0 : OV7670_PCLK -> clka / clk_24wiz_180shift -> clkb
-   - blk_mem_gen_1 : clk_24wiz -> clka / clk_24wiz_180shift -> clkb
-   - hdmi_0 : clk_out2 (zynq_us_ss_0) -> clk24
-   - v_vid_in_axi4s_0 : clk_out2 (zynq_us_ss_0) -> aclk
-   - core_0 : clk_24wiz -> clk24
-
-- Complete the other connections :
-   - addr (ov7670_capture_0) -> addra (blk_mem_gen_0)
-   - dout (ov7670_capture_0) -> dina (blk_mem_gen_0)
-   - we (ov7670_capture_0) -> wea (blk_mem_gen_0)
-   - addr_mem0 (core_0) -> addrb (blk_mem_gen_0)
-   - doutb (blk_mem_gen_0) -> din (core_0)
-   - addr_mem1 (core_0) -> addra (blk_mem_gen_1)
-   - dout (core_0) -> dina (blk_mem_gen_1)
-   - we (core_0) -> wea (blk_mem_gen_1)
-   - addr_mem1 (core_0) -> addrb (blk_mem_gen_1)
-   - doutb (blk_mem_gen_1) -> din (core_0)
-   - core_end (core_0) -> core_end (camera_configure_0)
-   - 
-- Right click on the block design then click on *Add IP* to add a Constant
-   - Customize the IP : Const Width -> 1 / Const Val -> 1
-   - Connect the dout pin to *clk_en* of camera_configure_0 
-   - Connect the dout pin to *vid_io_in_ce*, *aclken* and *axis_enable* of Video In to AXI4-Stream
-- Generate output products : ```Flow Navigator>IP INTEGRATOR>Generate Block Design```. The wrapper file (Top file) will be updated automatically by Vivado.
-
 
 #### Video Frame CRC
 Cyclic Redundancy Check (CRC) is generally used to detect errors in digital data and is commonly employed in video transmission to detect errors in pixel transmission. Using CRC, data integrity can be checked at various levels namely, pixel level, horizontal line level, frame level of a video.
@@ -97,6 +48,67 @@ The Video Test Pattern Generator has 2 modes : Generation mode (1) and Passthrou
 - Make sure samples per clock is equal to 2 and maximum data width is equal to 8.
 - The first mode will be used to test the platform (by default). Make sure to check all the patterns under _Background Patterns_.
 - The second mode will be used to drive the camera output to the HDMI circuit (check _HAS AXI4S SLAVE_)
+
+#### Customizing the Block Design 
+- Import the Verilog sources and the constraints file.
+- Right click on the block design then click on *Add Module* to add one by one the Verilog RTL modules.
+- Right click on the block design then click on *Add IP* to add two Block Memory Generator (0) and (1)
+- Customize the Block Memory Generator (0) - blk_mem_gen_0
+   - Basic : Mode -> Stand Alone / Memory Type -> Simple Dual Port RAM
+   - Port A Options : Port A Width -> 8 / Port A Depth -> 614400 / Enable Port Type -> Always Enabled
+   - Port B Options : Port B Width -> 8 / Port B Depth -> 614400 / Enable Port Type -> Always Enabled / Uncheck Primitives Output Register
+- Customize the Block Memory Generator (1) - blk_mem_gen_1
+   - Basic : Mode -> Stand Alone / Memory Type -> Simple Dual Port RAM
+   - Port A Options : Port A Width -> 48 / Port A Depth -> / Enable Port Type -> Always Enabled
+   - Port B Options : Port B Width -> 48 / Port B Depth -> / Enable Port Type -> Always Enabled / Uncheck Primitives Output Register
+- Right click on the block design then click on *Add IP* to add Video In to AXI4-Stream
+   - Customize the IP by setting Pixels per Clock to 2
+- Right click on the pins we want to make extenal and click on *Make External* (or Ctrl + T). Customize the names so that they match the ones given in the constraints file. The connexions to/from external pins are : 
+   - ov7670_capture_0 : *OV7670_PCLK* -> pclk / *V7670_VSYNC* -> vsync / *OV7670_HREF* -> href / *SW7* -> sw / *OV7670_D* -> din
+   - camera_configure_0 : pwdn -> *OV7670_PWDN* / reset -> *OV7670_RESET* / xclk -> *OV7670_XCLK* / sioc -> *OV7670_SIOC* / siod <-> *OV7670_SIOD*
+- Right click on the block design then click on *Add IP* to add a Utility Vector Logic. Customize it : C_SIZE -> 1 / C_OPERATION -> not. The input of the IP should be connected to the external port _PAD_RESET_ and the output of the IP to the *rst_n* pins of : clk_wiz_0, ov7670_capture_0, core_0 and camera_configure_0. 
+- Add a second Utility Vector Logic. Customize it : C_SIZE -> 1 / C_OPERATION -> not. The input of the IP should be connected to clk_out2 (zynq_us_ss_0) and the output of the IP to clkb (blk_mem_gen_1).
+- Right click on the block design then click on *Add IP* to add a Clocking Wizard. Customize the IP : 
+   - Board : CLK_IN1 -> user si570 sysclk (external port)
+   - Output Clocks : clk_out1 : Port Name -> clk_24wiz / Output Freq -> 24 MHz
+   - Output Clocks : clk_out2 : Port Name -> clk_24wiz_180shift / Output Freq -> 24 MHz / Phase -> 180 degrees
+   - Output Clocks : clk_out3 : Port Name -> clk_48wiz / Output Freq -> 48 MHz
+ 
+- Connect the clocks :  
+   - camera_configure_0 : clk_48wiz -> sclk / clk_24wiz -> clk
+   - blk_mem_gen_0 : OV7670_PCLK -> clka / clk_24wiz_180shift -> clkb
+   - blk_mem_gen_1 : clk_24wiz -> clka / clk_24wiz_180shift -> clkb
+   - hdmi_0 : clk_out2 (zynq_us_ss_0) -> clk24
+   - v_vid_in_axi4s_0 : clk_out2 (zynq_us_ss_0) -> aclk
+   - core_0 : clk_24wiz -> clk24
+
+- Complete the other pin connections :
+   - addr (ov7670_capture_0) -> addra (blk_mem_gen_0)
+   - dout (ov7670_capture_0) -> dina (blk_mem_gen_0)
+   - we (ov7670_capture_0) -> wea (blk_mem_gen_0)
+   - addr_mem0 (core_0) -> addrb (blk_mem_gen_0)
+   - doutb (blk_mem_gen_0) -> din (core_0)
+   - addr_mem1 (core_0) -> addra (blk_mem_gen_1)
+   - dout (core_0) -> dina (blk_mem_gen_1)
+   - we (core_0) -> wea (blk_mem_gen_1)
+   - frame_addr (hdmi_0) -> addrb (blk_mem_gen_1)
+   - doutb (blk_mem_gen_1) -> frame_pixel (hdmi_0)
+   - core_end (core_0) -> core_end (camera_configure_0)
+   - hdmi_active_video (hdmi_0) -> vid_active_video (v_vid_in_axi4s_0)
+   - hdmi_data (hdmi_0) -> vid_data (v_vid_in_axi4s_0)
+   - hdmi_hsync (hdmi_0) -> vid_hsync (v_vid_in_axi4s_0)
+   - hdmi_vsync (hdmi_0) -> vid_vsync (v_vid_in_axi4s_0)
+   - hdmi_hblank (hdmi_0) -> vid_hblank (v_vid_in_axi4s_0)
+   - hdmi_vblank (hdmi_0) -> vid_vblank (v_vid_in_axi4s_0)
+   - capture_end (ov7670_capture_0) -> capture_end (camera_configure_0)
+   - dcm_locked (zynq_us_ss_0) -> aresetn (v_vid_in_axi4s_0)
+   - dcm_locked (zynq_us_ss_0) -> rst_n (hdmi_0)
+  
+- Right click on the block design then click on *Add IP* to add a Constant
+   - Customize the IP : Const Width -> 1 / Const Val -> 1
+   - Connect the dout pin to *clk_en* of camera_configure_0 
+   - Connect the dout pin to *vid_io_in_ce*, *aclken* and *axis_enable* of Video In to AXI4-Stream
+- Generate output products : ```Flow Navigator>IP INTEGRATOR>Generate Block Design```. The wrapper file (Top file) will be updated automatically by Vivado.
 
 #### Clocking
 Let's create a 640x480 RGB 24bpp @ 60Hz video signal. The camera will send data coded in YUV422 format. That's 307200 pixels per frame, each pixel will be converted from YUV422 to RGB by the core module. Each pixel now has 24 bits (8 bits for red, green and blue), at 60Hz, the HDMI link will transport 0.44Gbps of useful data. 
@@ -145,7 +157,7 @@ Link Clock (txoutclk) used for data interface between the Video PHY layer module
 ### Software application using Vitis
 - Generate ouput products ```Flow Navigator>IP INTEGRATOR>Generate Block Design>Generate```
 - Run synthesis, implementation and bitstream generation
-- Export hardware ```File>Export>Export Hardware...``` (Make sure to include bitstream)
+- Export hardware ```File>Export>Export Hardware...``` (Make sure to check *Include Bitstream*)
 - Launch Vitis IDE ```Tools>Launch Vitis IDE```
 - Create a new platform project ```File>New>Platform Project``` and use the exported hardware file as an XSA File for the platform ```Create a new platform from hardware (XSA)>Hardware Specification>XSA File>Browse```. Set the OS and processor : ```Software Specification>Operating system>standalone``` and ```Software Specification>Processor>psu_cortexa53_0```. Make sure *Generate boot components* is checked and *target processor to create FSBL* is set to psu_cortexa53_0. Click Finish to generate the platform.
 - At the platform.spr page, select Board Support Package under the *standalone on psu_cortexa53_0*
