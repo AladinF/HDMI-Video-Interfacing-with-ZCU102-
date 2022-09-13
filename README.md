@@ -131,7 +131,7 @@ The pixel clock represents the total number of pixels that need to be sent every
 ### Final Block Design
 ![image](https://user-images.githubusercontent.com/58849076/189553895-af7207ee-2435-4866-b954-6690848f7068.png)
 
-### OV7670 to ZCU102 Pinout
+### Connecting OV7670 to ZCU102 - Pinout
 
 | ov7670   | ZCU102  | Zynq   | Verilog        |          |
 | -------- | ------- | ------ | -------------- | -------- |
