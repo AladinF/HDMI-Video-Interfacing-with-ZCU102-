@@ -20,7 +20,7 @@ The *ov7670\_capture* file codes the FSM for data capture. In the *ov7670\_to\_v
    - Example Design : Design Topology -> Tx Only (further details on every IP of the example design can be found below)
 - Right click on ```Sources->v_hdmi_tx_ss_0``` then click on _Open IP Example Design..._
 - The new example design project will be created at the specified directory.
-- Import the Verilog sources
+- Import the Verilog sources and the constraints file.
 - Right click on the block design then click on *Add Module* to add one by one the Verilog RTL modules.
 - Right click on the block design then click on *Add IP* to add two Block Memory Generator (0) and (1)
 - Customize the Block Memory Generator (0) - blk_mem_gen_0
@@ -44,6 +44,7 @@ The *ov7670\_capture* file codes the FSM for data capture. In the *ov7670\_to\_v
    - Connect the dout pin to *clk_en* of camera_configure_0 
    - Connect the dout pin to *vid_io_in_ce*, *aclken* and *axis_enable* of Video In to AXI4-Stream
 - Generate output products : ```Flow Navigator>IP INTEGRATOR>Generate Block Design```. The wrapper file (Top file) will be updated automatically by Vivado.
+
 
 #### Video Frame CRC
 Cyclic Redundancy Check (CRC) is generally used to detect errors in digital data and is commonly employed in video transmission to detect errors in pixel transmission. Using CRC, data integrity can be checked at various levels namely, pixel level, horizontal line level, frame level of a video.
@@ -91,7 +92,31 @@ Link Clock (txoutclk) used for data interface between the Video PHY layer module
 ### Final Block Design
 ![image](https://user-images.githubusercontent.com/58849076/189553895-af7207ee-2435-4866-b954-6690848f7068.png)
 
-### 
+### OV7670 to ZCU102 Pinout
+
+| ov7670   | ZCU102  | Zynq   | Verilog        |          |
+| -------- | ------- | ------ | -------------- | -------- |
+| PWDN     | J87\_ 8 | W12    | OV7670\_PWDN   | PMOD1\_7 |
+| D0       | J55\_8  | W11    | OV7670\_D\[0\] | PMOD0\_7 |
+| D2       | J55\_6  | V10    | OV7670\_D\[2\] | PMOD0\_6 |
+| D4       | J55\_4  | W8     | OV7670\_D\[4\] | PMOD0\_5 |
+| GND      | J55\_9  | GROUND | GND            | GND      |
+| 3V3      | J55\_11 | 3.3V   | 3.3V           | vcc3v3   |
+| RESET    | J87\_ 7 | V12    | OV7670\_RESET  | PMOD1\_3 |
+| D1       | J55\_7  | W10    | OV7670\_D\[1\] | PMOD0\_3 |
+| D3       | J55\_5  | V9     | OV7670\_D\[3\] | PMOD0\_2 |
+| D5       | J55\_3  | V8     | OV7670\_D\[5\] | PMOD0\_1 |
+| \-       | \-      | \-     | \-             |          |
+| D6       | J55\_2  | AB7    | OV7670\_D\[6\] | PMOD0\_4 |
+| MCLK     | J87\_ 6 | Y4     | OV7670\_XCLK   | PMOD1\_6 |
+| D7       | J55\_1  | R6     | OV7670\_D\[7\] | PMOD0\_0 |
+| PCLK     | J87\_ 5 | T4     | OV7670\_PCLK   | PMOD1\_2 |
+| \-       | \-      | \-     | \-             |          |
+| HREF/HS  | J87\_4  | V7     | OV7670\_HREF   | PMOD1\_5 |
+| SIOD/SDA | J87\_ 2 | V5     | OV7670\_SIOD   | PMOD1\_4 |
+| VSYNC/VS | J87\_ 3 | W6     | OV7670\_VSYNC  | PMOD1\_1 |
+| SIOC/SCL | J87\_ 1 | U6     | OV7670\_SIOC   | PMOD1\_0 |
+| \-       | JD4\_N  | U5     | \-             |          |
 
 ### Software application using Vitis
 - Generate ouput products ```Flow Navigator>IP INTEGRATOR>Generate Block Design>Generate```
@@ -142,7 +167,7 @@ Examples :
 >xsct% mwr 0xff5e0200 0x0100
 >xsct% rst -system
 ```
-- Make sure to always check _skip revision check_ before programming the FPGA or running the application. It is also possible to add the ```-no-revision-check``` option if programming with the XSCD shell.
+- Make sure to always check _skip revision check_ before programming the FPGA or running the application. It is also possible to add the ```-no-revision-check``` option if programming with the XSDB shell.
  
 ### Bibliography
 _ZCU102 Evaluation Board User Guide (UG118), v1.6 June 12, 2019, Xilinx, https://www.xilinx.com/support/documents/boards_and_kits/zcu102/ug1182-zcu102-eval-bd.pdf_
