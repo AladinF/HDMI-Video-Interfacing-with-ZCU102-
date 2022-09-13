@@ -34,6 +34,7 @@ The *ov7670\_capture* file codes the FSM for data capture. In the *ov7670\_to\_v
 - Right click on the block design then click on *Add IP* to add Video In to AXI4-Stream
    - Customize the IP by setting Pixels per Clock to 2
 - Right click on the pins we want to make extenal and click on *Make External* (or Ctrl + T). Customize the names so that they match the ones given in the constraints file. The external pins are : ....
+- Right click on the block design then click on *Add IP* to add a Utility Vector Logic. Customize it : C_SIZE -> 1 / C_OPERATION -> not
 - Generate output products : ```Flow Navigator>IP INTEGRATOR>Generate Block Design```. The wrapper file (Top file) will be updated automatically by Vivado.
 
 #### Video Frame CRC
