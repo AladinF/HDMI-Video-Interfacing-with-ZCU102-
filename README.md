@@ -37,8 +37,32 @@ The *ov7670\_capture* file codes the FSM for data capture. In the *ov7670\_to\_v
    - ov7670_capture_0 : *OV7670_PCLK* -> pclk / *V7670_VSYNC* -> vsync / *OV7670_HREF* -> href / *SW7* -> sw / *OV7670_D* -> din
    - camera_configure_0 : pwdn -> *OV7670_PWDN* / reset -> *OV7670_RESET* / xclk -> *OV7670_XCLK* / sioc -> *OV7670_SIOC* / siod <-> *OV7670_SIOD*
 - Right click on the block design then click on *Add IP* to add a Utility Vector Logic. Customize it : C_SIZE -> 1 / C_OPERATION -> not. The input of the IP should be connected to the external port _PAD_RESET_ and the output of the IP the *rst_n* pins of the RTL modules 
-- Right click on the block design then click on *Add IP* to add a Clocking Wizard
-   - Customize the IP : 
+- Right click on the block design then click on *Add IP* to add a Clocking Wizard. Customize the IP : 
+   - Board : CLK_IN1 -> user si570 sysclk (erternal port)
+   - Output Clocks : clk_out1 : Port Name -> clk_24wiz / Output Freq -> 24 MHz
+   - Output Clocks : clk_out2 : Port Name -> clk_24wiz_180shift / Output Freq -> 24 MHz / 
+   - Output Clocks : clk_out3 : Port Name -> clk_48wiz / Output Freq -> 48 MHz
+- Connect the clocks : ()  
+   - camera_configure_0 : clk_48wiz -> sclk / clk_24wiz -> clk
+   - blk_mem_gen_0 : OV7670_PCLK -> clka / clk_24wiz_180shift -> clkb
+   - blk_mem_gen_1 : clk_24wiz -> clka / clk_24wiz_180shift -> clkb
+   - hdmi_0 : clk_out2 (zynq_us_ss_0) -> clk24
+   - v_vid_in_axi4s_0 : clk_out2 (zynq_us_ss_0) -> aclk
+   - core_0 : clk_24wiz -> clk24
+
+- Complete the other connections :
+   - addr (ov7670_capture_0) -> addra (blk_mem_gen_0)
+   - dout (ov7670_capture_0) -> dina (blk_mem_gen_0)
+   - we (ov7670_capture_0) -> wea (blk_mem_gen_0)
+   - addr_mem0 (core_0) -> addrb (blk_mem_gen_0)
+   - doutb (blk_mem_gen_0) -> din (core_0)
+   - addr_mem1 (core_0) -> addra (blk_mem_gen_1)
+   - dout (core_0) -> dina (blk_mem_gen_1)
+   - we (core_0) -> wea (blk_mem_gen_1)
+   - addr_mem1 (core_0) -> addrb (blk_mem_gen_1)
+   - doutb (blk_mem_gen_1) -> din (core_0)
+   - core_end (core_0) -> core_end (camera_configure_0)
+   - 
 - Right click on the block design then click on *Add IP* to add a Constant
    - Customize the IP : Const Width -> 1 / Const Val -> 1
    - Connect the dout pin to *clk_en* of camera_configure_0 
@@ -130,7 +154,7 @@ Link Clock (txoutclk) used for data interface between the Video PHY layer module
 - Click on Run to run the application.
 - PS : if an error window pops up with an error message related to memory when runnning the application, try to uncheck *Use FSBL flow for initialization* in *Target Setup* in order to use *psu_init.tcl* as an Initialization File.
 
-#### Test 
+### Test 
 **The Video TPG Subsystem is in generation mode**
 
 Refer to the Address Map to get the base address for the TPG Subsystem. From this address we can calculate the address of the register *background_pattern_id*. We use XSCT shell to send commands and write values at the register's address to generate different patterns. Each pattern has an id (Check the TPG product guide for the the list of values) 
