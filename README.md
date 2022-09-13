@@ -59,8 +59,8 @@ The Video Test Pattern Generator has 2 modes : Generation mode (1) and Passthrou
    - Port B Options : Port B Width -> 8 / Port B Depth -> 614,400 / Enable Port Type -> Always Enabled / Uncheck Primitives Output Register
 - Customize the Block Memory Generator (1) - blk_mem_gen_1
    - Basic : Mode -> Stand Alone / Memory Type -> Simple Dual Port RAM
-   - Port A Options : Port A Width -> 48 / Port A Depth -> / Enable Port Type -> Always Enabled
-   - Port B Options : Port B Width -> 48 / Port B Depth -> / Enable Port Type -> Always Enabled / Uncheck Primitives Output Register
+   - Port A Options : Port A Width -> 48 / Port A Depth -> 153,600 / Enable Port Type -> Always Enabled
+   - Port B Options : Port B Width -> 48 / Port B Depth -> 153,600 / Enable Port Type -> Always Enabled / Uncheck Primitives Output Register
 - Right click on the block design then click on *Add IP* to add Video In to AXI4-Stream
    - Customize the IP by setting Pixels per Clock to 2
 - Right click on the pins we want to make extenal and click on *Make External* (or Ctrl + T). Customize the names so that they match the ones given in the constraints file. The connexions to/from external pins are : 
