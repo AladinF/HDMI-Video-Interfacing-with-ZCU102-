@@ -18,16 +18,37 @@ The *ov7670\_capture* file codes the FSM for data capture. In the *ov7670\_to\_v
 - Customize the IP then click OK:
    - Toplevel : Video Interface -> Axi4-Stream / Max bits per component -> 8 / Number of pixels per clock on Video Interface -> 2
    - Example Design : Design Topology -> Tx Only (further details on every IP of the example design can be found below)
-- Right click on ```Sources->v_hdmi_tx_ss_0```then click on _Open IP Example Design..._
+- Right click on ```Sources->v_hdmi_tx_ss_0``` then click on _Open IP Example Design..._
 - The new example design project will be created at the specified directory.
 - Import the Verilog sources
 - Right click on the block design then click on *Add Module* to add one by one the Verilog RTL modules.
-- 
+- Right click on the block design then click on *Add IP* to add two Block Memory Generator (0) and (1)
+- Customize the Block Memory Generator (0)
+   - Basic : Mode -> Stand Alone / Memory Type -> Simple Dual Port RAM
+   - Port A Options : Port A Width -> / Port A Depth -> / Enable Port Type -> Always Enabled
+   - Port B Options : Port B Width -> / Port B Depth -> / Enable Port Type -> Always Enabled / Uncheck Primitives Output Register
+- Customize the Block Memory Generator (1)
+- Basic : Mode -> Stand Alone / Memory Type -> Simple Dual Port RAM
+   - Port A Options : Port A Width -> / Port A Depth -> / Enable Port Type -> Always Enabled
+   - Port B Options : Port B Width -> / Port B Depth -> / Enable Port Type -> Always Enabled / Uncheck Primitives Output Register
+- Right click on the block design then click on *Add IP* to add Video In to AXI4-Stream
+   - Customize the IP by setting Pixels per Clock to 2
+
+- Generate output products, the wrapper file (Top file) will be updated automatically by Vivado.
+
 #### Video Frame CRC
 Cyclic Redundancy Check (CRC) is generally used to detect errors in digital data and is commonly employed in video transmission to detect errors in pixel transmission. Using CRC, data integrity can be checked at various levels namely, pixel level, horizontal line level, frame level of a video.
 The Video Frame CRC IP is not part of the HDMI core data path requirements but is necessary for validation/compliance requirement
 
 #### 	HDMI Transmitter Subsystem
+
+![image](https://user-images.githubusercontent.com/58849076/189784173-e8c0c6f2-3a70-43ba-afe9-e722220fd6b0.png)
+
+"A valid transfer occurs whenever READY, VALID, and AP_RST_N are High at the rising edge of AP_CLK, as seen in Figure 2-7. During valid transfers, DATA only carries active video data. Blank periods and ancillary data packets are not transferred through the AXI4-Stream video protocol."
+
+"The Start-Of-Frame (SOF) signal, physically transmitted over the AXI4-Stream TUSER0 signal, marks the first pixel of a video frame. The SOF pulse is 1 valid transaction wide, and must coincide with the first pixel of the frame, as seen in Figure 2-7. The SOF signal serves as a frame synchronization signal, which allows downstream cores to re-initialize, and detect the first pixel of a frame."
+
+"The End-Of-Line (EOL) signal, physically transmitted over the AXI4-Stream TLAST signal, marks the last pixel of a line. The EOL pulse is 1 valid transaction wide, and must coincide with the last pixel of a scanline."
 
 #### Video PHY Controller
 The HDMI stream (video stream + audio stream) is transmitted to the Video PHY Controller which converts the data into electronic signals (TMDs) which are then sent to an HDMI sink through an HDMI cable. 
@@ -66,27 +87,39 @@ Link Clock (txoutclk) used for data interface between the Video PHY layer module
 ### Software application using Vitis
 - Generate ouput products ```Flow Navigator>IP INTEGRATOR>Generate Block Design>Generate```
 - Run synthesis, implementation and bitstream generation
-- Export hardware ```File>Export>Export Hardware...```
+- Export hardware ```File>Export>Export Hardware...``` (Make sure to include bitstream)
 - Launch Vitis IDE ```Tools>Launch Vitis IDE```
+- Create a new platform project ```File>New>Platform Project``` and use the exported hardware file as an XSA File for the platform
+- 
 
 #### Test 
-**The Video TPG Subsystem is in generation mode.**
-Refer to the Adress Map to get the base address for the TPG Subsystem. From this address we can calculate the address of the register *background_pattern_id*. We use XSCT shell to send commands and write values at the register's address to generate different patterns. Each pattern has an id. 
+**The Video TPG Subsystem is in generation mode**
+
+Refer to the Address Map to get the base address for the TPG Subsystem. From this address we can calculate the address of the register *background_pattern_id*. We use XSCT shell to send commands and write values at the register's address to generate different patterns. Each pattern has an id (Check the TPG product guide for the the list of values) 
 
 ![image](https://user-images.githubusercontent.com/58849076/189558637-faf5799c-065d-4461-8955-12818e47c3d8.png)
 
-Example : This command will generate a color bar pattern.
+Examples : 
+- This command will generate a color bar pattern.
 ```
 >xsct% connect 
->xsct% mwr 0x80030000 0x02
+>xsct% mwr 0x80030000 0x09
+```
+- This command will generate a solid red output.
+```
+>xsct% mwr 0x80030000 0x04
 ```
 
 ![image](https://user-images.githubusercontent.com/58849076/189554341-9c95341b-5dfa-40f8-ad7a-1de6f1c671a0.png)
 
-**The Video TPG Subsystem is in passthrough mode.**
+**The Video TPG Subsystem is in passthrough mode**
 
 ![image](https://user-images.githubusercontent.com/58849076/189559260-95de6bbe-b637-4c22-8a72-3b428643fcd8.png)
 
+- Open the hdmi_example.c file on Vitis.
+- Set the variable _IsPassthrough_ to TRUE in the main() function.
+- Adapt the rest of the C code for the passthrough mode.
+- re-Build the application 
 #### ZCU102 Board configuration 
 - Force the JTAG mode through XSCT shell . Type the following commands.
 ```
