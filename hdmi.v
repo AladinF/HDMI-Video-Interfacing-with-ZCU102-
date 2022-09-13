@@ -48,7 +48,7 @@ module hdmi#(
 			input                clk24,
 			input        [47:0]  frame_pixel,
 			input                rst_n,
-			output       [18:0]	 frame_addr,
+			output       [17:0]	 frame_addr,
 			output reg   [47:0]	 hdmi_data,
 			output reg 		 hdmi_hsync,
 			output reg		 hdmi_vsync,
@@ -61,7 +61,7 @@ module hdmi#(
 
 	reg [9:0]	   hCounter; //9
 	reg [9:0]	   vCounter; //9
-	reg [18:0]    address;
+	reg [17:0]         address;
 	reg 		   vblank, hblank;
 	
 	assign hdmi_vblank = vblank;
