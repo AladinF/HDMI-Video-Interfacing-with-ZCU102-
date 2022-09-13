@@ -23,18 +23,26 @@ The *ov7670\_capture* file codes the FSM for data capture. In the *ov7670\_to\_v
 - Import the Verilog sources
 - Right click on the block design then click on *Add Module* to add one by one the Verilog RTL modules.
 - Right click on the block design then click on *Add IP* to add two Block Memory Generator (0) and (1)
-- Customize the Block Memory Generator (0)
+- Customize the Block Memory Generator (0) - blk_mem_gen_0
    - Basic : Mode -> Stand Alone / Memory Type -> Simple Dual Port RAM
-   - Port A Options : Port A Width -> / Port A Depth -> / Enable Port Type -> Always Enabled
-   - Port B Options : Port B Width -> / Port B Depth -> / Enable Port Type -> Always Enabled / Uncheck Primitives Output Register
-- Customize the Block Memory Generator (1)
+   - Port A Options : Port A Width -> 8 / Port A Depth -> 614400 / Enable Port Type -> Always Enabled
+   - Port B Options : Port B Width -> 8 / Port B Depth -> 614400 / Enable Port Type -> Always Enabled / Uncheck Primitives Output Register
+- Customize the Block Memory Generator (1) - blk_mem_gen_1
    - Basic : Mode -> Stand Alone / Memory Type -> Simple Dual Port RAM
-   - Port A Options : Port A Width -> / Port A Depth -> / Enable Port Type -> Always Enabled
-   - Port B Options : Port B Width -> / Port B Depth -> / Enable Port Type -> Always Enabled / Uncheck Primitives Output Register
+   - Port A Options : Port A Width -> 48 / Port A Depth -> / Enable Port Type -> Always Enabled
+   - Port B Options : Port B Width -> 48 / Port B Depth -> / Enable Port Type -> Always Enabled / Uncheck Primitives Output Register
 - Right click on the block design then click on *Add IP* to add Video In to AXI4-Stream
    - Customize the IP by setting Pixels per Clock to 2
-- Right click on the pins we want to make extenal and click on *Make External* (or Ctrl + T). Customize the names so that they match the ones given in the constraints file. The external pins are : ....
-- Right click on the block design then click on *Add IP* to add a Utility Vector Logic. Customize it : C_SIZE -> 1 / C_OPERATION -> not
+- Right click on the pins we want to make extenal and click on *Make External* (or Ctrl + T). Customize the names so that they match the ones given in the constraints file. The connexions to/from external pins are : 
+   - ov7670_capture_0 : *OV7670_PCLK* -> pclk / *V7670_VSYNC* -> vsync / *OV7670_HREF* -> href / *SW7* -> sw / *OV7670_D* -> din
+   - camera_configure_0 : pwdn -> *OV7670_PWDN* / reset -> *OV7670_RESET* / xclk -> *OV7670_XCLK* / sioc -> *OV7670_SIOC* / siod <-> *OV7670_SIOD*
+- Right click on the block design then click on *Add IP* to add a Utility Vector Logic. Customize it : C_SIZE -> 1 / C_OPERATION -> not. The input of the IP should be connected to the external port _PAD_RESET_ and the output of the IP the *rst_n* pins of the RTL modules 
+- Right click on the block design then click on *Add IP* to add a Clocking Wizard
+   - Customize the IP : 
+- Right click on the block design then click on *Add IP* to add a Constant
+   - Customize the IP : Const Width -> 1 / Const Val -> 1
+   - Connect the dout pin to *clk_en* of camera_configure_0 
+   - Connect the dout pin to *vid_io_in_ce*, *aclken* and *axis_enable* of Video In to AXI4-Stream
 - Generate output products : ```Flow Navigator>IP INTEGRATOR>Generate Block Design```. The wrapper file (Top file) will be updated automatically by Vivado.
 
 #### Video Frame CRC
