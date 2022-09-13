@@ -5,7 +5,7 @@ This project is based on the *ov7670\_to\_vga* project accessible here: https://
 - A licence is required to use the Xilinx HDMI IP core. 
 - This project was developed under Vivado 2020.2 version.
 - Files from original project *ov7670\_to\_vga* have been translated from SystemVerilog to Verilog for this project in order to allow adding RTL modules to the block design (Only VHDL and Verilog modules can be added as RTL modules to a block design).
-- Some ports from the original project *ov7670\_to\_vga* are not used in this new project ()
+- Some ports from the original project *ov7670\_to\_vga* are not used in this new project.
 
 ###	FSM : ov7670_capture
 ![image](https://user-images.githubusercontent.com/58849076/189544568-7a664f5e-d259-4dac-9dd1-b8256a37eca7.png)
