@@ -28,7 +28,7 @@ The *ov7670\_capture* file codes the FSM for data capture. In the *ov7670\_to\_v
    - Port A Options : Port A Width -> / Port A Depth -> / Enable Port Type -> Always Enabled
    - Port B Options : Port B Width -> / Port B Depth -> / Enable Port Type -> Always Enabled / Uncheck Primitives Output Register
 - Customize the Block Memory Generator (1)
-- Basic : Mode -> Stand Alone / Memory Type -> Simple Dual Port RAM
+   - Basic : Mode -> Stand Alone / Memory Type -> Simple Dual Port RAM
    - Port A Options : Port A Width -> / Port A Depth -> / Enable Port Type -> Always Enabled
    - Port B Options : Port B Width -> / Port B Depth -> / Enable Port Type -> Always Enabled / Uncheck Primitives Output Register
 - Right click on the block design then click on *Add IP* to add Video In to AXI4-Stream
